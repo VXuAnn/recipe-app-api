@@ -4,16 +4,19 @@ import { ENV } from "./config/env.js"
 import { favoritesTable } from "./db/schema.js";
 import { json } from "drizzle-orm/gel-core";
 import { eq, and } from "drizzle-orm";
+import job from "./config/cron.js";
 
 
-const app = express()
-const PORT = ENV.PORT || 8001
+const app = express();
+const PORT = ENV.PORT || 5001;
 
-app.use(express.json())
+if(ENV.NODE_ENV === 'production') job.start();
+
+app.use(express.json());
 
 app.get("/api/healthy", (req, res) =>{
   res.status(200).json({success: true});
-})
+});
 
 app.post("/api/favorites", async (req, res) => {
   try {
@@ -68,6 +71,7 @@ app.delete("/api/favorites/:userId/:recipeId", async (req, res) =>{
     res.status(500),json({error: "Something went wrong"})
   }
 } )
+
 app.listen(PORT, () => {
   console.log("server is running on PORT:", PORT)
 })
